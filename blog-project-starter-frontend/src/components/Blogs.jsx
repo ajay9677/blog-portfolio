@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import axios from "axios"
 import Footer from './common/Footer';
 import auth from '../config/firebase';
 
 
-const API_URL = '${import.meta.env.VITE_API_URL}';
+const API_URL = import.meta.env.VITE_API_URL;
 function Blogs() {
 
     const [blogs, setBlogs] = useState([]);
