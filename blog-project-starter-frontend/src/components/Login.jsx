@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { connectAuthEmulater, signInWithEmailAndPassword } from 'firebase/auth';
+import {  signInWithEmailAndPassword } from 'firebase/auth';
 import auth from '../config/firebase';
 
 function Login() {
@@ -17,7 +17,7 @@ function Login() {
             navigate("/home")
         }
       })
-    }, []);
+    }, [navigate]);
 
     
 
