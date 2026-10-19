@@ -14,6 +14,15 @@ app.use(cors());
 
 app.use(express.json({ limit: "20kb" }));
 
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB Atlas Connected Successfully");
+  })
+  .catch((err) => {
+    console.error("MongoDB Connection Failed:", err.message);
+  });
+
 // Contact Schema
 const contactSchema = new mongoose.Schema(
   {
