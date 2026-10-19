@@ -39,9 +39,9 @@ function Home() {
 
 
             <div className='flex justify-evenly py-6'>
-                <img src={HTML} style={{ width: "50px" }} />
-                <img src={CSS} style={{ width: "50px" }} />
-                <img src={JS} style={{ width: "50px" }} />
+                <img src={HTML} style={{ width: "50px" }} alt="Profile" />
+                <img src={CSS} style={{ width: "50px" }} alt="Project preview" />
+                <img src={JS} style={{ width: "50px" }}  alt="Portfolio project"/>
                 <img src={REACTICON} style={{ width: "50px" }} alt="React" />
                 <img src={DB} style={{ width: "50px" }} alt="Database" />
                 <img src={NODE} style={{ width: "50px" }} alt="Node.js" />
@@ -98,7 +98,7 @@ function Home() {
 
             <div className='flex items-center justify-center my-14'>
                 <div className='justify-center hidden sm:block'>
-                  <img src={BlogImage} className='w-60 md:w-96 ' alt="Blog Profile Image" />  
+                  <img src={BlogImage} className='w-60 md:w-96 ' alt="Blog Profile " />  
 
                 </div>
                 <div className="w-full sm:w-1/2 flex-col justify-center ml-6">
