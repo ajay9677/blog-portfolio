@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios"
 import Footer from './common/Footer';
 import auth from '../config/firebase';
+
+
+const API_URL = '${import.meta.env.VITE_API_URL}';
 function Blogs() {
 
     const [blogs, setBlogs] = useState([]);
@@ -21,7 +24,7 @@ function Blogs() {
     const fetchBlogs = async () => {
         try {
             const res = await axios.get(
-                "http://localhost:5000/api/blogs"
+                API_URL
             );
             setBlogs(res.data);
         } catch (error) {
@@ -41,10 +44,10 @@ function Blogs() {
 
     const handleLike = async (blog_id) => {
         try {
-            const response = await axios.patch(`http://localhost:5000/api/blogs/like/${blog_id}`);
+            const response = await axios.patch(`${API_URL}/blogs/like/${blog_id}`);
             // After successfully updating the likes count in the backend, fetch the updated list of blogs
             if (response.status === 200) {
-                axios.get("http://localhost:5000/api/blogs").then((res) => {
+                axios.get(`${API_URL}/blogs`).then((res) => {
                     console.log(res.data)
                     setBlogs(res.data)
                 }).catch(() => {
@@ -75,7 +78,7 @@ const handleNewBlogSubmit = async (event) => {
 
   try {
     const response = await axios.post(
-      "http://localhost:5000/api/blogs",
+      `${API_URL}/blogs`,
       {
         newTitle: newTitle.trim(),
         date,
@@ -87,7 +90,7 @@ const handleNewBlogSubmit = async (event) => {
     console.log("Blog added:", response.data);
 
     const blogsResponse = await axios.get(
-      "http://localhost:5000/api/blogs"
+      `${API_URL}/blogs`
     );
 
     setBlogs(blogsResponse.data);
