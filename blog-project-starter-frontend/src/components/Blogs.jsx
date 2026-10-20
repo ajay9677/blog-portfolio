@@ -78,7 +78,7 @@ const handleNewBlogSubmit = async (event) => {
 
   try {
     const response = await axios.post(
-      `${API_URL}/blogs`,
+      `${API_URL}/api/blogs`,
       {
         newTitle: newTitle.trim(),
         date,
@@ -90,7 +90,7 @@ const handleNewBlogSubmit = async (event) => {
     console.log("Blog added:", response.data);
 
     const blogsResponse = await axios.get(
-      `${API_URL}/blogs`
+      `${API_URL}/api/blogs`
     );
 
     setBlogs(blogsResponse.data);
