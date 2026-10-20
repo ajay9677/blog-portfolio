@@ -4,7 +4,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const validator = require("validator");
 
 const app = express();
@@ -62,13 +62,7 @@ const Blog =
   mongoose.model("Blog", blogSchema);
 
 // Gmail Transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD,
-  },
-});
+
 
 // Home Route
 app.get("/", (req, res) => {
@@ -133,10 +127,13 @@ app.post("/api/contact", async (req, res) => {
       emailStatus: "pending",
     });
 
+        // Send email using Resend API
     try {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: process.env.CONTACT_RECEIVER,
+      const resend = new Resend(process.env.RESEND_API_KEY);
+
+      const { error } = await resend.emails.send({
+        from: "Portfolio Contact <onboarding@resend.dev>",
+        to: [process.env.CONTACT_RECEIVER],
         replyTo: cleanEmail,
         subject: `Portfolio Contact: ${cleanSubject}`,
         text: `New portfolio enquiry
@@ -148,6 +145,10 @@ Subject: ${cleanSubject}
 Message:
 ${cleanMessage}`,
       });
+
+      if (error) {
+        throw new Error(error.message || "Resend email failed");
+      }
 
       contact.emailStatus = "sent";
       await contact.save();
@@ -167,6 +168,7 @@ ${cleanMessage}`,
         saved: true,
         message: "Your message was saved, but email delivery failed.",
       });
+    
     }
   } catch (error) {
     console.error("Contact API error:", error.message);
@@ -252,11 +254,10 @@ app.patch("/api/blogs/like/:id", async (req, res) => {
 async function startServer() {
   try {
     const requiredVariables = [
-      "MONGO_URI",
-      "EMAIL_USER",
-      "EMAIL_APP_PASSWORD",
-      "CONTACT_RECEIVER",
-    ];
+  "MONGO_URI",
+  "RESEND_API_KEY",
+  "CONTACT_RECEIVER",
+];
 
     const missingVariables = requiredVariables.filter(
       (key) => !process.env[key]
