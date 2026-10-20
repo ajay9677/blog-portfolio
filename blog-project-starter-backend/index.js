@@ -8,48 +8,19 @@ const nodemailer = require("nodemailer");
 const validator = require("validator");
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// Temporary CORS configuration for backend-first deployment
+// Middleware
 app.use(cors());
-
 app.use(express.json({ limit: "20kb" }));
-
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("MongoDB Atlas Connected Successfully");
-  })
-  .catch((err) => {
-    console.error("MongoDB Connection Failed:", err.message);
-  });
 
 // Contact Schema
 const contactSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 100,
-    },
-    email: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 254,
-    },
-    subject: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 200,
-    },
-    message: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 5000,
-    },
+    name: { type: String, required: true, trim: true, maxlength: 100 },
+    email: { type: String, required: true, trim: true, maxlength: 254 },
+    subject: { type: String, required: true, trim: true, maxlength: 200 },
+    message: { type: String, required: true, trim: true, maxlength: 5000 },
     emailStatus: {
       type: String,
       enum: ["pending", "sent", "failed"],
@@ -59,7 +30,9 @@ const contactSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Contact = mongoose.model("Contact", contactSchema);
+const Contact =
+  mongoose.models.Contact ||
+  mongoose.model("Contact", contactSchema);
 
 // Blog Schema
 const blogSchema = new mongoose.Schema({
@@ -84,7 +57,9 @@ const blogSchema = new mongoose.Schema({
   },
 });
 
-const Blog = mongoose.model("Blog", blogSchema);
+const Blog =
+  mongoose.models.Blog ||
+  mongoose.model("Blog", blogSchema);
 
 // Gmail Transporter
 const transporter = nodemailer.createTransport({
@@ -97,7 +72,7 @@ const transporter = nodemailer.createTransport({
 
 // Home Route
 app.get("/", (req, res) => {
-  res.status(200).send("Portfolio Contact API is running");
+  res.status(200).send("Portfolio API is running");
 });
 
 // Health Check
@@ -150,7 +125,6 @@ app.post("/api/contact", async (req, res) => {
       });
     }
 
-    // Save contact details to MongoDB
     const contact = await Contact.create({
       name: cleanName,
       email: cleanEmail,
@@ -159,7 +133,6 @@ app.post("/api/contact", async (req, res) => {
       emailStatus: "pending",
     });
 
-    // Send email notification
     try {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
@@ -192,8 +165,7 @@ ${cleanMessage}`,
       return res.status(502).json({
         success: false,
         saved: true,
-        message:
-          "Your message was saved, but email delivery failed.",
+        message: "Your message was saved, but email delivery failed.",
       });
     }
   } catch (error) {
@@ -213,9 +185,7 @@ app.get("/api/blogs", async (req, res) => {
     return res.status(200).json(blogs);
   } catch (error) {
     console.error("Fetch blogs error:", error.message);
-    return res.status(500).json({
-      message: "Unable to fetch blogs",
-    });
+    return res.status(500).json({ message: "Unable to fetch blogs" });
   }
 });
 
@@ -250,9 +220,7 @@ app.post("/api/blogs", async (req, res) => {
     });
   } catch (error) {
     console.error("Add blog error:", error.message);
-    return res.status(500).json({
-      message: "Unable to add blog",
-    });
+    return res.status(500).json({ message: "Unable to add blog" });
   }
 });
 
@@ -260,9 +228,7 @@ app.post("/api/blogs", async (req, res) => {
 app.patch("/api/blogs/like/:id", async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).json({
-        message: "Invalid blog ID",
-      });
+      return res.status(400).json({ message: "Invalid blog ID" });
     }
 
     const blog = await Blog.findByIdAndUpdate(
@@ -272,23 +238,17 @@ app.patch("/api/blogs/like/:id", async (req, res) => {
     );
 
     if (!blog) {
-      return res.status(404).json({
-        message: "Blog not found",
-      });
+      return res.status(404).json({ message: "Blog not found" });
     }
 
     return res.status(200).json(blog);
   } catch (error) {
     console.error("Like blog error:", error.message);
-    return res.status(500).json({
-      message: "Unable to update likes",
-    });
+    return res.status(500).json({ message: "Unable to update likes" });
   }
 });
 
 // Start Server After MongoDB Connection
-const PORT = process.env.PORT || 5000;
-
 async function startServer() {
   try {
     const requiredVariables = [
@@ -312,16 +272,13 @@ async function startServer() {
       serverSelectionTimeoutMS: 15000,
     });
 
-    console.log("MongoDB connected successfully");
+    console.log("MongoDB Atlas Connected Successfully");
 
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error(
-      "Server startup failed:",
-      error.message
-    );
+    console.error("Server startup failed:", error.message);
     process.exit(1);
   }
 }
